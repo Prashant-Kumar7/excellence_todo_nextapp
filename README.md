@@ -51,6 +51,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    - Go to your Supabase project dashboard
    - Navigate to SQL Editor
    - Run the SQL script from `supabase-schema.sql` to create the necessary tables, policies, and triggers
+   - If you have an existing database, run `scripts/migrate-add-category-priority.sql` to add category and priority columns
+
+5. Create the first admin user:
+   - Sign up normally through the app
+   - Run the SQL from `scripts/create-first-admin.sql` in Supabase SQL Editor, replacing `USER_EMAIL_HERE` with your email
 
 5. Run the development server:
 ```bash
@@ -100,11 +105,15 @@ Row Level Security (RLS) is enabled to ensure users can only access their own da
 - Automatic profile creation on signup
 
 ### Todo Management
-- Create todos with title, description, and optional due date
+- Create todos with title, description, optional due date, category, and priority
 - Mark todos as completed/uncompleted
 - Edit existing todos
 - Delete todos with confirmation
 - Filter todos by Today, Completed, or Pending
+- **Search todos** by title or description
+- **Sort todos** by date, title, priority, etc.
+- **Bulk operations**: Select multiple todos to delete or mark complete/incomplete
+- **Categories and priorities**: Organize todos with custom categories and priority levels
 
 ### Admin Panel
 - View all users in a table
@@ -118,6 +127,13 @@ Row Level Security (RLS) is enabled to ensure users can only access their own da
 - System preference detection
 - Smooth theme transitions
 - Proper theming for all components
+
+### Additional Features
+- **Email verification flow** with resend option
+- **Blocked user feedback** - Clear message when account is blocked
+- **Error boundaries** - Graceful error handling throughout the app
+- **Loading states** - Skeleton loaders and loading indicators
+- **First admin bootstrap** - SQL script to create the first admin user
 
 ## Building for Production
 

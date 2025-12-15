@@ -17,6 +17,8 @@ export interface Database {
           description: string | null
           completed: boolean
           due_date: string | null
+          category: string | null
+          priority: string | null
           created_at: string
           updated_at: string
         }
@@ -27,6 +29,8 @@ export interface Database {
           description?: string | null
           completed?: boolean
           due_date?: string | null
+          category?: string | null
+          priority?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -37,6 +41,8 @@ export interface Database {
           description?: string | null
           completed?: boolean
           due_date?: string | null
+          category?: string | null
+          priority?: string | null
           created_at?: string
           updated_at?: string
         }

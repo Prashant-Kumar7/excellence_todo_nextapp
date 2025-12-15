@@ -6,9 +6,10 @@ import { Shield } from "lucide-react"
 
 interface AdminContentProps {
   users: UserProfile[]
+  currentAdminId: string
 }
 
-export default function AdminContent({ users }: AdminContentProps) {
+export default function AdminContent({ users, currentAdminId }: AdminContentProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -21,7 +22,7 @@ export default function AdminContent({ users }: AdminContentProps) {
         </div>
       </div>
 
-      <UsersTable users={users} />
+      <UsersTable users={users} currentAdminId={currentAdminId} />
     </div>
   )
 }

@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS todos (
   description TEXT,
   completed BOOLEAN DEFAULT FALSE NOT NULL,
   due_date DATE,
+  category TEXT,
+  priority TEXT CHECK (priority IN ('low', 'medium', 'high') OR priority IS NULL),
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
@@ -147,4 +149,14 @@ CREATE POLICY "Users can update own todos"
 CREATE POLICY "Users can delete own todos"
   ON todos FOR DELETE
   USING (auth.uid() = user_id);
+
+-- Admins can view all todos (using function to avoid recursion)
+CREATE POLICY "Admins can view all todos"
+  ON todos FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = auth.uid() AND is_admin = TRUE
+    )
+  );
 

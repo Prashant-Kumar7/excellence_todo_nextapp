@@ -1,30 +1,35 @@
 import { redirect } from 'next/navigation'
-import { requireAuth, getUserProfile } from '@/lib/auth'
+import { requireAdmin } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
-import DashboardContent from '@/components/dashboard/dashboard-content'
 import { Navbar } from '@/components/navbar'
+import UserTodosContent from '@/components/admin/user-todos-content'
 import { format, startOfDay, endOfDay } from 'date-fns'
 
-export default async function DashboardPage() {
-  const session = await requireAuth()
-  const profile = await getUserProfile(session.user.id)
-  
-  if (profile?.is_blocked) {
-    redirect('/login/blocked')
-  }
-  
-  // Check email verification
-  if (!session.user.email_confirmed_at) {
-    redirect('/auth/verify-email')
+export default async function UserTodosPage({
+  params,
+}: {
+  params: Promise<{ userId: string }>
+}) {
+  const { session, profile } = await requireAdmin()
+  const supabase = await createClient()
+  const { userId } = await params
+
+  // Fetch user profile
+  const { data: userProfile, error: userError } = await supabase
+    .from('user_profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+
+  if (userError || !userProfile) {
+    redirect('/admin')
   }
 
-  const supabase = await createClient()
-  
   // Fetch all todos for the user
   const { data: todos, error } = await supabase
     .from('todos')
     .select('*')
-    .eq('user_id', session.user.id)
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -48,11 +53,12 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-background">
       <Navbar
         userEmail={session.user.email}
-        userName={profile?.full_name || undefined}
-        isAdmin={profile?.is_admin || false}
+        userName={profile.full_name || undefined}
+        isAdmin={true}
       />
       <div className="container mx-auto px-4 py-8">
-        <DashboardContent
+        <UserTodosContent
+          userProfile={userProfile}
           todayTodos={todayTodos}
           completedTodos={completedTodos}
           pendingTodos={pendingTodos}

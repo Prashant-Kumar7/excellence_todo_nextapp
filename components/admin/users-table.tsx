@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
-import { Shield, ShieldOff, Ban, Trash2, User } from "lucide-react"
+import { Shield, ShieldOff, Ban, Trash2, Eye } from "lucide-react"
+import Link from "next/link"
 import { UserProfile } from "@/lib/types/database"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -32,9 +33,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 interface UsersTableProps {
   users: UserProfile[]
+  currentAdminId: string
 }
 
-export default function UsersTable({ users }: UsersTableProps) {
+export default function UsersTable({ users, currentAdminId }: UsersTableProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -167,11 +169,33 @@ export default function UsersTable({ users }: UsersTableProps) {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-2">
+                  {user.id === currentAdminId ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      disabled
+                      title="Cannot view own todos from admin panel"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      title="View user todos"
+                    >
+                      <Link href={`/admin/users/${user.id}/todos`}>
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => handleToggleAdmin(user.id, user.is_admin)}
                     title={user.is_admin ? "Remove admin" : "Make admin"}
+                    disabled={user.id === currentAdminId}
                   >
                     {user.is_admin ? (
                       <ShieldOff className="h-4 w-4" />
@@ -184,12 +208,17 @@ export default function UsersTable({ users }: UsersTableProps) {
                     size="icon"
                     onClick={() => handleToggleBlock(user.id, user.is_blocked)}
                     title={user.is_blocked ? "Unblock user" : "Block user"}
+                    disabled={user.id === currentAdminId}
                   >
                     <Ban className="h-4 w-4" />
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        disabled={user.id === currentAdminId}
+                      >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </AlertDialogTrigger>

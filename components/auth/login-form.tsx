@@ -43,13 +43,26 @@ export default function LoginForm() {
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true)
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       })
 
       if (error) {
+        // Check if it's an email verification error
+        if (error.message.includes('email') && error.message.includes('confirm')) {
+          toast.error("Please verify your email before logging in")
+          router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`)
+          return
+        }
         toast.error(error.message)
+        return
+      }
+
+      // Check if email is verified
+      if (authData.user && !authData.user.email_confirmed_at) {
+        toast.error("Please verify your email before logging in")
+        router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`)
         return
       }
 

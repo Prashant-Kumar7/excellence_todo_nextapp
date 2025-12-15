@@ -3,18 +3,15 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
-import { Trash2, Edit, Calendar } from "lucide-react"
+import { Trash2, Edit } from "lucide-react"
 import { Todo } from "@/lib/types/database"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+  TableCell,
+  TableRow,
+} from "@/components/ui/table"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,14 +23,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import EditTodoDialog from "@/components/dashboard/edit-todo-dialog"
 
 interface TodoItemProps {
   todo: Todo
+  isSelected?: boolean
+  onSelectChange?: (selected: boolean) => void
 }
 
-export default function TodoItem({ todo }: TodoItemProps) {
+export default function TodoItem({
+  todo,
+  isSelected = false,
+  onSelectChange,
+}: TodoItemProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -68,70 +77,130 @@ export default function TodoItem({ todo }: TodoItemProps) {
 
   return (
     <>
-      <Card className={todo.completed ? "opacity-60" : ""}>
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-3 flex-1">
-              <Checkbox
-                checked={todo.completed}
-                onCheckedChange={handleToggleComplete}
-                className="mt-1"
-              />
-              <div className="flex-1">
-                <CardTitle
-                  className={
-                    todo.completed ? "line-through text-muted-foreground" : ""
-                  }
-                >
-                  {todo.title}
-                </CardTitle>
-                {todo.description && (
-                  <CardDescription className="mt-1">
-                    {todo.description}
-                  </CardDescription>
-                )}
-                {todo.due_date && (
-                  <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-                    <Calendar className="h-3 w-3" />
-                    <span>{format(new Date(todo.due_date), "MMM dd, yyyy")}</span>
-                  </div>
-                )}
+      <TableRow
+        className={`${todo.completed ? "opacity-60" : ""} ${
+          isSelected ? "bg-muted/50" : ""
+        }`}
+      >
+        {onSelectChange && (
+          <TableCell>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={(checked) =>
+                      onSelectChange(checked === true)
+                    }
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label="Select todo for bulk operations"
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select for bulk operations</p>
+              </TooltipContent>
+            </Tooltip>
+          </TableCell>
+        )}
+        <TableCell>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Checkbox
+                  checked={todo.completed}
+                  onCheckedChange={handleToggleComplete}
+                  aria-label={todo.completed ? "Mark as incomplete" : "Mark as complete"}
+                />
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsEditing(true)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" disabled={isDeleting}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      this todo.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{todo.completed ? "Mark as incomplete" : "Mark as complete"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TableCell>
+        <TableCell>
+          <div
+            className={`font-medium ${
+              todo.completed ? "line-through text-muted-foreground" : ""
+            }`}
+          >
+            {todo.title}
           </div>
-        </CardHeader>
-      </Card>
+        </TableCell>
+        <TableCell>
+          <div className="text-sm text-muted-foreground max-w-md truncate">
+            {todo.description || "-"}
+          </div>
+        </TableCell>
+        <TableCell>
+          {todo.category ? (
+            <Badge variant="secondary">{todo.category}</Badge>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          )}
+        </TableCell>
+        <TableCell>
+          {todo.priority ? (
+            <Badge
+              variant="outline"
+              className={
+                todo.priority === "high"
+                  ? "border-red-500 text-red-700 dark:text-red-400"
+                  : todo.priority === "medium"
+                  ? "border-yellow-500 text-yellow-700 dark:text-yellow-400"
+                  : "border-blue-500 text-blue-700 dark:text-blue-400"
+              }
+            >
+              {todo.priority}
+            </Badge>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          )}
+        </TableCell>
+        <TableCell>
+          {todo.due_date ? (
+            <span className="text-sm">
+              {format(new Date(todo.due_date), "MMM dd, yyyy")}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          )}
+        </TableCell>
+        <TableCell className="text-right">
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsEditing(true)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon" disabled={isDeleting}>
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    this todo.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </TableCell>
+      </TableRow>
 
       <EditTodoDialog
         todo={todo}

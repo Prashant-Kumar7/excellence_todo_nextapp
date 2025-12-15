@@ -27,7 +27,7 @@ export default async function AdminPage() {
         isAdmin={true}
       />
       <div className="container mx-auto px-4 py-8">
-        <AdminContent users={users || []} />
+        <AdminContent users={users || []} currentAdminId={session.user.id} />
       </div>
     </div>
   )
