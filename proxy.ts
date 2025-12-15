@@ -41,9 +41,10 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Redirect authenticated users away from login/signup
+  // Redirect authenticated users away from login/signup/landing
   if ((request.nextUrl.pathname === '/login' || 
-       request.nextUrl.pathname === '/signup') && user) {
+       request.nextUrl.pathname === '/signup' ||
+       request.nextUrl.pathname === '/landing') && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

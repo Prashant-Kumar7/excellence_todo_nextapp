@@ -70,13 +70,13 @@ export default function UserTodosContent({
           </TabsTrigger>
         </TabsList>
         <TabsContent value="today" className="mt-6">
-          <TodoList todos={todayTodos} />
+          <TodoList todos={todayTodos} readOnly={true} />
         </TabsContent>
         <TabsContent value="completed" className="mt-6">
-          <TodoList todos={completedTodos} />
+          <TodoList todos={completedTodos} readOnly={true} />
         </TabsContent>
         <TabsContent value="pending" className="mt-6">
-          <TodoList todos={pendingTodos} />
+          <TodoList todos={pendingTodos} readOnly={true} />
         </TabsContent>
       </Tabs>
     </div>

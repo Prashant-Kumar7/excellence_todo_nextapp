@@ -21,12 +21,14 @@ interface TodoListProps {
   todos: Todo[]
   selectedIds?: Set<string>
   onSelectionChange?: (selectedIds: Set<string>) => void
+  readOnly?: boolean
 }
 
 export default function TodoList({
   todos,
   selectedIds,
   onSelectionChange,
+  readOnly = false,
 }: TodoListProps) {
   if (todos.length === 0) {
     return (
@@ -46,7 +48,7 @@ export default function TodoList({
       <Table>
         <TableHeader>
           <TableRow>
-            {onSelectionChange && (
+            {onSelectionChange && !readOnly && (
               <TableHead className="w-12">
                 <span className="sr-only">Select for bulk operations</span>
                 <span className="text-xs text-muted-foreground">Select</span>
@@ -56,12 +58,12 @@ export default function TodoList({
               <span className="sr-only">Mark as complete/incomplete</span>
               <span className="text-xs text-muted-foreground">Complete</span>
             </TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Priority</TableHead>
-            <TableHead>Due Date</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="min-w-[150px]">Title</TableHead>
+            <TableHead className="min-w-[200px]">Description</TableHead>
+            <TableHead className="w-[120px]">Category</TableHead>
+            <TableHead className="w-[100px]">Priority</TableHead>
+            <TableHead className="w-[130px]">Due Date</TableHead>
+            <TableHead className="w-[120px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -80,6 +82,7 @@ export default function TodoList({
                 }
                 onSelectionChange(newSelected)
               }}
+              readOnly={readOnly}
             />
           ))}
         </TableBody>

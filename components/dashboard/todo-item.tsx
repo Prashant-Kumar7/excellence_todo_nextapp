@@ -36,12 +36,14 @@ interface TodoItemProps {
   todo: Todo
   isSelected?: boolean
   onSelectChange?: (selected: boolean) => void
+  readOnly?: boolean
 }
 
 export default function TodoItem({
   todo,
   isSelected = false,
   onSelectChange,
+  readOnly = false,
 }: TodoItemProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
@@ -82,8 +84,8 @@ export default function TodoItem({
           isSelected ? "bg-muted/50" : ""
         }`}
       >
-        {onSelectChange && (
-          <TableCell>
+        {onSelectChange && !readOnly && (
+          <TableCell className="w-12">
             <Tooltip>
               <TooltipTrigger asChild>
                 <div>
@@ -103,13 +105,14 @@ export default function TodoItem({
             </Tooltip>
           </TableCell>
         )}
-        <TableCell>
+        <TableCell className="w-12">
           <Tooltip>
             <TooltipTrigger asChild>
               <div>
                 <Checkbox
                   checked={todo.completed}
-                  onCheckedChange={handleToggleComplete}
+                  onCheckedChange={readOnly ? undefined : handleToggleComplete}
+                  disabled={readOnly}
                   aria-label={todo.completed ? "Mark as incomplete" : "Mark as complete"}
                 />
               </div>
@@ -119,7 +122,7 @@ export default function TodoItem({
             </TooltipContent>
           </Tooltip>
         </TableCell>
-        <TableCell>
+        <TableCell className="min-w-[150px]">
           <div
             className={`font-medium ${
               todo.completed ? "line-through text-muted-foreground" : ""
@@ -128,19 +131,19 @@ export default function TodoItem({
             {todo.title}
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell className="min-w-[200px]">
           <div className="text-sm text-muted-foreground max-w-md truncate">
             {todo.description || "-"}
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell className="w-[120px]">
           {todo.category ? (
             <Badge variant="secondary">{todo.category}</Badge>
           ) : (
             <span className="text-muted-foreground">-</span>
           )}
         </TableCell>
-        <TableCell>
+        <TableCell className="w-[100px]">
           {todo.priority ? (
             <Badge
               variant="outline"
@@ -158,7 +161,7 @@ export default function TodoItem({
             <span className="text-muted-foreground">-</span>
           )}
         </TableCell>
-        <TableCell>
+        <TableCell className="w-[130px]">
           {todo.due_date ? (
             <span className="text-sm">
               {format(new Date(todo.due_date), "MMM dd, yyyy")}
@@ -167,38 +170,42 @@ export default function TodoItem({
             <span className="text-muted-foreground">-</span>
           )}
         </TableCell>
-        <TableCell className="text-right">
-          <div className="flex items-center justify-end gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsEditing(true)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" disabled={isDeleting}>
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    this todo.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+        <TableCell className="w-[120px] text-right">
+          {readOnly ? (
+            <span className="text-sm text-muted-foreground">View only</span>
+          ) : (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsEditing(true)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" disabled={isDeleting}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      this todo.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
         </TableCell>
       </TableRow>
 

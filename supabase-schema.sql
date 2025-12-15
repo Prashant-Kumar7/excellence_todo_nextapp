@@ -140,6 +140,16 @@ CREATE POLICY "Users can insert own todos"
   ON todos FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+-- Admins can insert todos for any user (using function to avoid recursion)
+CREATE POLICY "Admins can insert todos for any user"
+  ON todos FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM user_profiles
+      WHERE id = auth.uid() AND is_admin = TRUE
+    )
+  );
+
 -- Users can update their own todos
 CREATE POLICY "Users can update own todos"
   ON todos FOR UPDATE
