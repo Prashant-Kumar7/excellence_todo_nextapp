@@ -75,7 +75,7 @@ export default function AssignTodoDialog({
         dueDate: "",
         dueTime: "",
         category: "",
-        priority: "none",
+        priority: "",
         assignedUserId: "",
       })
     }
@@ -90,7 +90,7 @@ export default function AssignTodoDialog({
         description: data.description || null,
         due_date: data.dueDate || null,
         category: data.category || null,
-        priority: (data.priority && data.priority !== "none") ? data.priority : null,
+        priority: data.priority || null,
         completed: false,
       })
 
@@ -196,15 +196,15 @@ export default function AssignTodoDialog({
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
               <Select
-                value={watch("priority") || "none"}
-                onValueChange={(value) => setValue("priority", value === "none" ? undefined : (value as any))}
+                value={watch("priority") || ""}
+                onValueChange={(value) => setValue("priority", value === "" ? undefined : (value as any))}
                 disabled={isLoading}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="">None</SelectItem>
                   <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="high">High</SelectItem>
