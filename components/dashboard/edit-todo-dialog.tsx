@@ -36,7 +36,7 @@ const todoSchema = z.object({
   dueDate: z.string().optional(),
   dueTime: z.string().optional(),
   category: z.string().optional(),
-  priority: z.enum(["low", "medium", "high"]).optional().or(z.literal("")),
+  priority: z.enum(["low", "medium", "high", "none"]).optional(),
 })
 
 type TodoFormValues = z.infer<typeof todoSchema>
@@ -87,7 +87,7 @@ export default function EditTodoDialog({
           : "",
         dueTime: "",
         category: todo.category || "",
-        priority: (todo.priority as "low" | "medium" | "high") || "",
+        priority: (todo.priority as "low" | "medium" | "high") || "none",
       })
     }
   }, [open, todo, reset])
@@ -102,7 +102,7 @@ export default function EditTodoDialog({
           description: data.description || null,
           due_date: data.dueDate || null,
           category: data.category || null,
-          priority: data.priority || null,
+          priority: (data.priority && data.priority !== "none") ? data.priority : null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", todo.id)
@@ -174,15 +174,15 @@ export default function EditTodoDialog({
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
               <Select
-                value={watch("priority") || ""}
-                onValueChange={(value) => setValue("priority", value === "" ? undefined : (value as any))}
+                value={watch("priority") || "none"}
+                onValueChange={(value) => setValue("priority", value === "none" ? undefined : (value as any))}
                 disabled={isLoading}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="high">High</SelectItem>
